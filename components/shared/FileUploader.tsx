@@ -1,33 +1,32 @@
 "use client";
 
-import { useCallback, Dispatch, SetStateAction } from 'react'
-import { useDropzone } from '@uploadthing/react/hooks'
-import { generateClientDropzoneAccept } from 'uploadthing/client'
+import { useCallback, Dispatch, SetStateAction } from 'react';
+import { useDropzone } from '@uploadthing/react/hooks';
+import { generateClientDropzoneAccept } from 'uploadthing/client';
 
-import { Button } from '@/components/ui/button'
-import { convertFileToUrl } from '@/lib/utils'
+import { Button } from '@/components/ui/button';
+import { convertFileToUrl } from '@/lib/utils';
 
-// Define the FileWithPath type if it's not provided by the library
 type FileWithPath = File & {
   path?: string;
-}
+};
 
 type FileUploaderProps = {
-  onFieldChange: (url: string) => void
-  imageUrl: string
-  setFiles: Dispatch<SetStateAction<File[]>>
-}
+  onFieldChange: (url: string) => void;
+  imageUrl: string;
+  setFiles: Dispatch<SetStateAction<File[]>>;
+};
 
 export function FileUploader({ imageUrl, onFieldChange, setFiles }: FileUploaderProps) {
   const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
-    setFiles(acceptedFiles)
-    onFieldChange(convertFileToUrl(acceptedFiles[0]))
-  }, [onFieldChange, setFiles])
+    setFiles(acceptedFiles);
+    onFieldChange(convertFileToUrl(acceptedFiles[0]));
+  }, []);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: generateClientDropzoneAccept(['image/*']),
-  })
+    accept: 'image/*' ? generateClientDropzoneAccept(['image/*']) : undefined,
+  });
 
   return (
     <div
@@ -36,7 +35,7 @@ export function FileUploader({ imageUrl, onFieldChange, setFiles }: FileUploader
       <input {...getInputProps()} className="cursor-pointer" />
 
       {imageUrl ? (
-        <div className="flex h-full w-full flex-1 justify-center">
+        <div className="flex h-full w-full flex-1 justify-center ">
           <img
             src={imageUrl}
             alt="image"
@@ -56,5 +55,5 @@ export function FileUploader({ imageUrl, onFieldChange, setFiles }: FileUploader
         </div>
       )}
     </div>
-  )
+  );
 }

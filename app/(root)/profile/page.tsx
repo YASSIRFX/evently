@@ -4,26 +4,21 @@ import { getEventsByUser } from '@/lib/actions/event.actions';
 import { getOrdersByUser } from '@/lib/actions/order.actions';
 import { IOrder } from '@/lib/database/models/order.model';
 import { SearchParamProps } from '@/types';
-import { getAuth } from '@clerk/nextjs/server';
+import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
-import { GetServerSideProps } from 'next';
 import React from 'react';
 
-type ProfilePageProps = {
-  userId: string;
-  ordersPage: number;
-  eventsPage: number;
-  orderedEvents: IOrder[];
-  organizedEvents: any;
-};
+const ProfilePage = async ({ searchParams }: SearchParamProps) => {
+  const { userId } = useAuth();
 
-const ProfilePage = ({
-  userId,
-  ordersPage,
-  eventsPage,
-  orderedEvents,
-  organizedEvents,
-}: ProfilePageProps) => {
+  const ordersPage = Number(searchParams?.ordersPage) || 1;
+  const eventsPage = Number(searchParams?.eventsPage) || 1;
+
+  const orders = await getOrdersByUser({ userId: userId || "", page: ordersPage });
+
+  const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
+  const organizedEvents = await getEventsByUser({ userId: userId || "", page: eventsPage });
+
   return (
     <>
       {/* My Tickets */}
@@ -31,7 +26,9 @@ const ProfilePage = ({
         <div className="wrapper flex items-center justify-center sm:justify-between">
           <h3 className="h3-bold text-center sm:text-left">My Tickets</h3>
           <Button asChild size="lg" className="button hidden sm:flex">
-            <Link href="/#events">Explore More Events</Link>
+            <Link href="/#events">
+              Explore More Events
+            </Link>
           </Button>
         </div>
       </section>
@@ -45,7 +42,7 @@ const ProfilePage = ({
           limit={3}
           page={ordersPage}
           urlParamName="ordersPage"
-          totalPages={organizedEvents?.totalPages}
+          totalPages={orders?.totalPages}
         />
       </section>
 
@@ -54,7 +51,9 @@ const ProfilePage = ({
         <div className="wrapper flex items-center justify-center sm:justify-between">
           <h3 className="h3-bold text-center sm:text-left">Events Organized</h3>
           <Button asChild size="lg" className="button hidden sm:flex">
-            <Link href="/events/create">Create New Event</Link>
+            <Link href="/events/create">
+              Create New Event
+            </Link>
           </Button>
         </div>
       </section>
@@ -76,27 +75,3 @@ const ProfilePage = ({
 };
 
 export default ProfilePage;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { req, query } = context;
-
-  const { userId } = getAuth(req); // Get the authenticated user's ID
-
-  const ordersPage = Number(query.ordersPage) || 1;
-  const eventsPage = Number(query.eventsPage) || 1;
-
-  const orders = await getOrdersByUser({ userId, page: ordersPage });
-
-  const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
-  const organizedEvents = await getEventsByUser({ userId, page: eventsPage });
-
-  return {
-    props: {
-      userId,
-      ordersPage,
-      eventsPage,
-      orderedEvents,
-      organizedEvents,
-    },
-  };
-};
