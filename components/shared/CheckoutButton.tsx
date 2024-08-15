@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { IEvent } from '@/lib/database/models/event.model'
 import { SignedIn, SignedOut, useUser } from '@clerk/nextjs'

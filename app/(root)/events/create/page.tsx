@@ -1,8 +1,10 @@
-import EventForm from "@/components/shared/EventForm";
-import { useAuth } from "@clerk/nextjs";
+import EventForm from "@/components/shared/EventForm"
+import { auth } from "@clerk/nextjs";
 
 const CreateEvent = () => {
-  const { userId } = useAuth();
+  const { sessionClaims } = auth();
+
+  const userId = sessionClaims?.userId as string;
 
   return (
     <>
@@ -11,14 +13,10 @@ const CreateEvent = () => {
       </section>
 
       <div className="wrapper my-8">
-        {userId ? (
-          <EventForm userId={userId} type="Create" />
-        ) : (
-          <div>Loading...</div>
-        )}
+        <EventForm userId={userId} type="Create" />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default CreateEvent;
+export default CreateEvent
